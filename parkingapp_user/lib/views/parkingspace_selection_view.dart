@@ -46,7 +46,7 @@ class _ParkingSpaceSelectionScreenState
     if (loggedInPersonName != null && loggedInPersonNum != null) {
       // Create a Person object
       var loggedInPerson = Person(
-        id: 0, // Assuming id is 0 or you can set it to any default value
+        // id: loggedInPerson.id, // Assuming id is 0 or you can set it to any default value
         name: loggedInPersonName,
         personNumber: loggedInPersonNum,
       );
@@ -127,11 +127,11 @@ class _ParkingSpaceSelectionScreenState
     });
   }
 
-  Future<int> _getNextParkingId() async {
-    final parkingRepository = ParkingRepository.instance;
-    final parkingList = await parkingRepository.getAllParkings();
-    return parkingList.length + 1;
-  }
+  // Future<int> _getNextParkingId() async {
+  //   final parkingRepository = ParkingRepository.instance;
+  //   final parkingList = await parkingRepository.getAllParkings();
+  //   return parkingList.length + 1;
+  // }
 
   Future<void> _startParking() async {
     final prefs = await SharedPreferences.getInstance();
@@ -158,12 +158,12 @@ class _ParkingSpaceSelectionScreenState
         ParkingSpace.fromJson(json.decode(selectedParkingSpaceJson!));
 
     // Get the next parking ID
-    final nextParkingId = await _getNextParkingId();
+    // final nextParkingId = await _getNextParkingId();
 
     final parkingInstance = Parking(
-      id: nextParkingId, // Use the next parking ID
+      // id: nextParkingId, // Use the next parking ID
       vehicle: Vehicle(
-        id: selectedVehicle.id, // Default to -1 if id is missing
+        // id: selectedVehicle.id, // Default to -1 if id is missing
         regNumber: selectedVehicle.regNumber, // Default to empty string
         vehicleType: selectedVehicle.vehicleType, // Default to empty string
         owner: Person(
@@ -173,7 +173,7 @@ class _ParkingSpaceSelectionScreenState
           personNumber: loggedInPerson.personNumber, // Default if missing
         ),
       ),
-      parkingSpace: _selectedParkingSpace!,
+      parkingSpace: selectedParkingSpace,
       startTime: DateTime.now(),
       endTime: DateTime.now().add(const Duration(hours: 2)),
     );
@@ -198,69 +198,6 @@ class _ParkingSpaceSelectionScreenState
       const SnackBar(content: Text("Parkering startad framgångsrikt")),
     );
   }
-
-  // Future<void> _startParking() async {
-  //   final prefs = await SharedPreferences.getInstance();
-  //   final selectedVehicleJson = prefs.getString('selectedVehicle');
-  //   final loggedInPersonJson = prefs.getString('loggedInPerson');
-  //   final selectedParkingSpaceJson = prefs.getString('selectedParkingSpace');
-
-  //   if (selectedVehicleJson == null || loggedInPersonJson == null) {
-  //     // Show a message if no vehicle or user is selected
-  //     ScaffoldMessenger.of(context).showSnackBar(
-  //       const SnackBar(
-  //         content: Text("Välj först ett fordon och en användare"),
-  //         duration: Duration(seconds: 1),
-  //       ),
-  //     );
-  //     return;
-  //   }
-
-  //   if (_selectedParkingSpace == null) return;
-
-  //   final selectedVehicle = Vehicle.fromJson(json.decode(selectedVehicleJson));
-  //   final loggedInPerson = Person.fromJson(json.decode(loggedInPersonJson));
-  //   final selectedParkingSpace =
-  //       ParkingSpace.fromJson(json.decode(selectedParkingSpaceJson!));
-
-  //   final parkingInstance = Parking(
-  //     id: 0, // Default ID; the server will assign a proper ID
-  //     vehicle: Vehicle(
-  //       id: selectedVehicle.id, // Default to -1 if id is missing
-  //       regNumber: selectedVehicle.regNumber, // Default to empty string
-  //       vehicleType: selectedVehicle.vehicleType, // Default to empty string
-  //       owner: Person(
-  //         id: loggedInPerson.id, // Default to -1 if id is missing
-  //         name:
-  //             loggedInPerson.name, // Default to empty string if name is missing
-  //         personNumber: loggedInPerson.personNumber, // Default if missing
-  //       ),
-  //     ),
-  //     parkingSpace: _selectedParkingSpace!,
-  //     startTime: DateTime.now(),
-  //     endTime: DateTime.now().add(const Duration(hours: 2)),
-  //   );
-
-  //   // Save the parking instance to SharedPreferences
-  //   await prefs.setString('parking', json.encode(parkingInstance.toJson()));
-
-  //   // Add the parking instance to the ParkingRepository
-  //   await ParkingRepository.instance.createParking(parkingInstance);
-
-  //   // Save the selected parking space to preferences when parking starts
-  //   final parkingSpaceJson = json.encode(_selectedParkingSpace!.toJson());
-  //   await prefs.setString('activeParkingSpace', parkingSpaceJson);
-  //   await prefs.setBool('isParkingActive', true);
-
-  //   // Update the UI to reflect that parking has started
-  //   setState(() {
-  //     _isParkingActive = true;
-  //   });
-
-  //   ScaffoldMessenger.of(context).showSnackBar(
-  //     const SnackBar(content: Text("Parkering startad framgångsrikt")),
-  //   );
-  // }
 
   Future<void> _stopParking() async {
     final prefs = await SharedPreferences.getInstance();

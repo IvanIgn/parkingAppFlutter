@@ -777,7 +777,7 @@ class _VehicleManagementViewState extends State<VehicleManagementView> {
 
   void _showAddVehicleDialog(BuildContext context) {
     final TextEditingController regNumberController = TextEditingController();
-    String selectedVehicleType = 'Bil (B)';
+    String selectedVehicleType = 'Bil';
 
     showDialog(
       context: context,
@@ -800,10 +800,10 @@ class _VehicleManagementViewState extends State<VehicleManagementView> {
                     DropdownButtonFormField<String>(
                       value: selectedVehicleType,
                       items: <String>[
-                        'Bil (B)',
-                        'Lastbil (C)',
-                        'Motorcykel (A)',
-                        'Moped (AM)',
+                        'Bil',
+                        'Lastbil',
+                        'Motorcykel',
+                        'Moped',
                         'Annat'
                       ].map((String value) {
                         return DropdownMenuItem<String>(
@@ -940,10 +940,10 @@ class _VehicleManagementViewState extends State<VehicleManagementView> {
                     DropdownButtonFormField<String>(
                       value: selectedVehicleType,
                       items: <String>[
-                        'Bil (B)',
-                        'Lastbil (C)',
-                        'Motorcykel (A)',
-                        'Moped (AM)',
+                        'Bil',
+                        'Lastbil',
+                        'Motorcykel',
+                        'Moped',
                         'Annat'
                       ].map((String value) {
                         return DropdownMenuItem<String>(

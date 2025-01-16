@@ -87,6 +87,8 @@ class _OverviewViewState extends State<OverviewView> {
                   buildSectionTitle(context, 'Ägareinformation:'),
                   const SizedBox(height: 8),
                   if (parkingInstance!.vehicle!.owner != null) ...[
+                    buildKeyValue('Ägarens ID',
+                        parkingInstance!.vehicle!.owner!.id.toString()),
                     buildKeyValue(
                         'Ägarensnamn', parkingInstance!.vehicle!.owner!.name),
                     buildKeyValue('Ägarens personnummer',
