@@ -572,20 +572,6 @@ class _VehicleManagementViewState extends State<VehicleManagementView> {
     });
   }
 
-  //  Future<void> _saveSelectedVehicle() async {
-  //   final prefs = await SharedPreferences.getInstance();
-  //   var loggedInName = prefs.getString('loggedInName');
-  //   var loggedInPersonNum = prefs.getString('loggedInPersonNum');
-  //   var loggedInPersonID = prefs.getInt('loggedInPersonID') ?? '';
-  //   // decode the JSON string
-  //   // loggedInName = json.decode(loggedInName!);
-  //   // loggedInPersonNum = json.decode(loggedInPersonNum!);
-  //   // loggedInPersonID is already an int, no need to decode
-  //   debugPrintSynchronously('Person Name: $loggedInName');
-  //   debugPrintSynchronously('Person Number: $loggedInPersonNum');
-  //   debugPrintSynchronously('Person ID: $loggedInPersonID');
-  // }
-
   Future<void> _selectVehicle(Vehicle vehicle) async {
     final prefs = await SharedPreferences.getInstance();
     final isParkingActive = prefs.getBool('isParkingActive') ?? false;
