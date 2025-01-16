@@ -25,7 +25,7 @@ class _ParkingSpaceSelectionScreenState
     super.initState();
     _loadSelectedParkingSpace(); // Load saved parking space on initialization
     _refreshParkingSpaces();
-    _showPersonInfo();
+    //_showSavedInfo();
   }
 
   Future<void> _loadSelectedParkingSpace() async {
@@ -177,7 +177,7 @@ class _ParkingSpaceSelectionScreenState
     final parkingInstance = Parking(
       id: nextParkingId, // Use the next parking ID
       vehicle: Vehicle(
-        id: selectedVehicle.id.toInt(), // Default to -1 if id is missing
+        id: selectedVehicle.id, // Default to -1 if id is missing
         regNumber: selectedVehicle.regNumber, // Default to empty string
         vehicleType: selectedVehicle.vehicleType, // Default to empty string
         owner: Person(
@@ -211,6 +211,7 @@ class _ParkingSpaceSelectionScreenState
     // Update the UI to reflect that parking has started
     setState(() {
       _isParkingActive = true;
+      _showSavedInfo();
     });
 
     ScaffoldMessenger.of(context).showSnackBar(
@@ -239,7 +240,7 @@ class _ParkingSpaceSelectionScreenState
     setState(() {
       _isParkingActive = false;
       _selectedParkingSpace = null;
-      _showPersonInfo();
+      // _showSavedInfo();
     });
 
     ScaffoldMessenger.of(context).showSnackBar(
@@ -255,18 +256,43 @@ class _ParkingSpaceSelectionScreenState
     }
   }
 
-  void _showPersonInfo() async {
+  void _showSavedInfo() async {
     final prefs = await SharedPreferences.getInstance();
+
+    // Person info
     var loggedInName = prefs.getString('loggedInName');
     var loggedInPersonNum = prefs.getString('loggedInPersonNum');
     var loggedInPersonID = prefs.getInt('loggedInPersonID') ?? '';
-    // decode the JSON string
-    // loggedInName = json.decode(loggedInName!);
-    // loggedInPersonNum = json.decode(loggedInPersonNum!);
-    // loggedInPersonID is already an int, no need to decode
+
+// Vehicle info
+    var selectedVehicleJson = prefs.getString('selectedVehicle');
+    final selectedVehicle = Vehicle.fromJson(json.decode(selectedVehicleJson!));
+// ParkingSpace info
+    var parkingSpaceJson = prefs.getString('selectedParkingSpace');
+    final selectedParkingSpace =
+        ParkingSpace.fromJson(json.decode(parkingSpaceJson!));
+
+    // Parking info
+    var parkingJson = prefs.getString('parking');
+    final selectedParking = Parking.fromJson(json.decode(parkingJson!));
+
     debugPrintSynchronously('Person Name: $loggedInName');
     debugPrintSynchronously('Person Number: $loggedInPersonNum');
     debugPrintSynchronously('Person ID: $loggedInPersonID');
+
+    debugPrintSynchronously('Vehicle ID: ${selectedVehicle.id}');
+    debugPrintSynchronously('Vehicle RegNumber: ${selectedVehicle.regNumber}');
+    debugPrintSynchronously('Vehicle Type: ${selectedVehicle.vehicleType}');
+
+    debugPrintSynchronously('ParkingSpace ID: ${selectedParkingSpace.id}');
+    debugPrintSynchronously(
+        'ParkingSpace address: ${selectedParkingSpace.address}');
+    debugPrintSynchronously(
+        'ParkingSpace pricePerHour: ${selectedParkingSpace.pricePerHour}');
+
+    debugPrintSynchronously('Parking ID: ${selectedParking.id}');
+    debugPrintSynchronously('Parking startTime: ${selectedParking.startTime}');
+    debugPrintSynchronously('Parking endTime: ${selectedParking.endTime}');
   }
 
   @override

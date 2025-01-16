@@ -649,6 +649,10 @@ class _ManageVehiclesViewState extends State<ManageVehiclesView> {
                       'Fordonstyp: ${vehicle.vehicleType}',
                       style: const TextStyle(fontSize: 14),
                     ),
+                    Text(
+                      'Ägare: ${vehicle.owner?.name != null && vehicle.owner!.name.isNotEmpty ? vehicle.owner!.name : 'Okänt'}',
+                      style: const TextStyle(fontSize: 14),
+                    ),
                   ],
                 ),
                 trailing: Row(

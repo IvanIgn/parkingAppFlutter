@@ -103,7 +103,7 @@ class _OverviewViewState extends State<OverviewView> {
                   buildKeyValue(
                       'Address', parkingInstance!.parkingSpace!.address),
                   buildKeyValue('Pris per timme',
-                      parkingInstance!.parkingSpace!.pricePerHour.toString()),
+                      '${parkingInstance!.parkingSpace!.pricePerHour} kr'),
                 ],
               ),
             ),

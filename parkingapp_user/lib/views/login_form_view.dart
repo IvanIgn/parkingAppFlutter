@@ -78,7 +78,6 @@ class _LoginFormViewState extends State<LoginFormView> {
         await prefs.setString('loggedInName', personName);
         await prefs.setString('loggedInPersonNum', personNum);
         await prefs.setInt('loggedInPersonID', personMap[personNum]!.id);
-
         Navigator.of(context).pop();
 
         ScaffoldMessenger.of(context).showSnackBar(
