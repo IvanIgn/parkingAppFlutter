@@ -78,7 +78,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
     if (confirmLogout == true) {
       final prefs = await SharedPreferences.getInstance();
-      await prefs.clear(); // Clear user data
+      // Clear user data
+      await prefs.clear();
       setState(() {
         isLoggedIn = false; // Return to the login view
         loggedInName = null;

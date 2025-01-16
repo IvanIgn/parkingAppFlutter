@@ -1,5 +1,6 @@
 import 'dart:convert'; // For JSON encoding/decoding
 import 'package:client_repositories/async_http_repos.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:shared/shared.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -24,6 +25,7 @@ class _ParkingSpaceSelectionScreenState
     super.initState();
     _loadSelectedParkingSpace(); // Load saved parking space on initialization
     _refreshParkingSpaces();
+    _showPersonInfo();
   }
 
   Future<void> _loadSelectedParkingSpace() async {
@@ -42,11 +44,15 @@ class _ParkingSpaceSelectionScreenState
 // Load logged in person
     final loggedInPersonName = prefs.getString('loggedInName');
     final loggedInPersonNum = prefs.getString('loggedInPersonNum');
+    final loggedInPersonID = prefs.getInt('loggedInPersonID');
+
+    // Check if loggedInPersonName and loggedInPersonNum are not null
 
     if (loggedInPersonName != null && loggedInPersonNum != null) {
       // Create a Person object
       var loggedInPerson = Person(
-        // id: loggedInPerson.id, // Assuming id is 0 or you can set it to any default value
+        id: loggedInPersonID ??
+            0, // Assuming id is 0 or you can set it to any default value
         name: loggedInPersonName,
         personNumber: loggedInPersonNum,
       );
@@ -127,16 +133,24 @@ class _ParkingSpaceSelectionScreenState
     });
   }
 
-  // Future<int> _getNextParkingId() async {
-  //   final parkingRepository = ParkingRepository.instance;
-  //   final parkingList = await parkingRepository.getAllParkings();
-  //   return parkingList.length + 1;
-  // }
+  Future<int> _getNextParkingId() async {
+    final parkingRepository = ParkingRepository.instance;
+    final parkingList = await parkingRepository.getAllParkings();
+    return parkingList.length + 1;
+  }
 
   Future<void> _startParking() async {
     final prefs = await SharedPreferences.getInstance();
-    final selectedVehicleJson = prefs.getString('selectedVehicle');
+    // Person Info
     final loggedInPersonJson = prefs.getString('loggedInPerson');
+    final loggedInPersonID = prefs.getInt('loggedInPersonID');
+    final loggedInPersonName = prefs.getString('loggedInName');
+    final loggedInPersonNum = prefs.getString('loggedInPersonNum');
+
+    // Vehicle Info
+    final selectedVehicleJson = prefs.getString('selectedVehicle');
+
+    // Parking Space Info
     final selectedParkingSpaceJson = prefs.getString('selectedParkingSpace');
 
     if (selectedVehicleJson == null || loggedInPersonJson == null) {
@@ -153,24 +167,24 @@ class _ParkingSpaceSelectionScreenState
     if (_selectedParkingSpace == null) return;
 
     final selectedVehicle = Vehicle.fromJson(json.decode(selectedVehicleJson));
-    final loggedInPerson = Person.fromJson(json.decode(loggedInPersonJson));
+    // final loggedInPerson = Person.fromJson(json.decode(loggedInPersonJson));
     final selectedParkingSpace =
         ParkingSpace.fromJson(json.decode(selectedParkingSpaceJson!));
 
     // Get the next parking ID
-    // final nextParkingId = await _getNextParkingId();
+    final nextParkingId = await _getNextParkingId();
 
     final parkingInstance = Parking(
-      // id: nextParkingId, // Use the next parking ID
+      id: nextParkingId, // Use the next parking ID
       vehicle: Vehicle(
-        id: selectedVehicle.id, // Default to -1 if id is missing
+        id: selectedVehicle.id.toInt(), // Default to -1 if id is missing
         regNumber: selectedVehicle.regNumber, // Default to empty string
         vehicleType: selectedVehicle.vehicleType, // Default to empty string
         owner: Person(
-          id: loggedInPerson.id, // Default to -1 if id is missing
-          name:
-              loggedInPerson.name, // Default to empty string if name is missing
-          personNumber: loggedInPerson.personNumber, // Default if missing
+          id: loggedInPersonID!,
+          name: loggedInPersonName ??
+              '', // Default to empty string if name is missing
+          personNumber: loggedInPersonNum ?? '', // Default if missing
         ),
       ),
       parkingSpace: ParkingSpace(
@@ -225,6 +239,7 @@ class _ParkingSpaceSelectionScreenState
     setState(() {
       _isParkingActive = false;
       _selectedParkingSpace = null;
+      _showPersonInfo();
     });
 
     ScaffoldMessenger.of(context).showSnackBar(
@@ -238,6 +253,20 @@ class _ParkingSpaceSelectionScreenState
     } else {
       await _startParking();
     }
+  }
+
+  void _showPersonInfo() async {
+    final prefs = await SharedPreferences.getInstance();
+    var loggedInName = prefs.getString('loggedInName');
+    var loggedInPersonNum = prefs.getString('loggedInPersonNum');
+    var loggedInPersonID = prefs.getInt('loggedInPersonID') ?? '';
+    // decode the JSON string
+    // loggedInName = json.decode(loggedInName!);
+    // loggedInPersonNum = json.decode(loggedInPersonNum!);
+    // loggedInPersonID is already an int, no need to decode
+    debugPrintSynchronously('Person Name: $loggedInName');
+    debugPrintSynchronously('Person Number: $loggedInPersonNum');
+    debugPrintSynchronously('Person ID: $loggedInPersonID');
   }
 
   @override
