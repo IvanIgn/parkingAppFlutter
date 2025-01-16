@@ -10,13 +10,13 @@ class Person {
   Person({
     required this.name,
     required this.personNumber,
-    this.id = -1, // Default to -1 for unassigned ID
+    this.id = 0, // Default to -1 for unassigned ID
   });
 
   // Factory constructor to create a Person from JSON
   factory Person.fromJson(Map<String, dynamic> json) {
     return Person(
-      id: json['id'] ?? -1, // Default to -1 if id is missing
+      id: json['id'] ?? 0, // Default to -1 if id is missing
       name: json['name'] ?? '', // Default to empty string if name is missing
       personNumber: json['personNumber'] ?? '', // Default if missing
     );

@@ -43,6 +43,7 @@ class _LoginFormViewState extends State<LoginFormView> {
   void _login() async {
     final personName = nameController.text.trim();
     final personNum = personNumController.text.trim();
+    final personID;
 
     setState(() {
       personNameError = personName.isEmpty || !Validator.isString(personName)
@@ -56,7 +57,7 @@ class _LoginFormViewState extends State<LoginFormView> {
         // Fetch user data from the repository
         final personList = await _personRepository.getAllPersons();
         final personMap = {
-          for (var person in personList) person.personNumber: person
+          for (var person in personList) person.personNumber: person,
         };
 
         if (!personMap.containsKey(personNum) ||
@@ -77,6 +78,8 @@ class _LoginFormViewState extends State<LoginFormView> {
         final prefs = await SharedPreferences.getInstance();
         await prefs.setString('loggedInName', personName);
         await prefs.setString('loggedInPersonNum', personNum);
+        await prefs.setString(
+            'loggedInPersonID', personMap[personNum]!.id.toString());
         Navigator.of(context).pop();
 
         ScaffoldMessenger.of(context).showSnackBar(

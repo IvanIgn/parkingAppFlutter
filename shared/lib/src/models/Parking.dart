@@ -19,7 +19,7 @@ class Parking {
     this.parkingSpace,
     required this.startTime,
     required this.endTime,
-    this.id = -1, // Default to -1 for unassigned ID
+    this.id = 0, // Default to -1 for unassigned ID
   });
 
   // Convert vehicle to a JSON string for database storage
@@ -42,7 +42,7 @@ class Parking {
   // Factory constructor to create a Parking instance from JSON
   factory Parking.fromJson(Map<String, dynamic> json) {
     return Parking(
-      id: json['id'] ?? -1,
+      id: json['id'] ?? 0,
       vehicle:
           json['vehicle'] != null ? Vehicle.fromJson(json['vehicle']) : null,
       parkingSpace: json['parkingSpace'] != null

@@ -16,7 +16,7 @@ class Vehicle {
     required this.regNumber,
     required this.vehicleType,
     this.owner,
-    this.id = -1, // Default to -1 for unassigned ID
+    this.id = 0, // Default to -1 for unassigned ID
   });
 
   // Getter to encode `owner` as a JSON string for database storage
@@ -40,7 +40,7 @@ class Vehicle {
   // Factory constructor to create a Vehicle from JSON
   factory Vehicle.fromJson(Map<String, dynamic> json) {
     return Vehicle(
-      id: json['id'] ?? -1, // Default to -1 if id is missing
+      id: json['id'] ?? 0, // Default to -1 if id is missing
       regNumber: json['regNumber'] ?? '', // Default to empty string
       vehicleType: json['vehicleType'] ?? '', // Default to empty string
       owner: json['owner'] != null ? Person.fromJson(json['owner']) : null,

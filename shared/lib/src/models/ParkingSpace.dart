@@ -10,13 +10,13 @@ class ParkingSpace {
   ParkingSpace({
     required this.address,
     required this.pricePerHour,
-    this.id = -1, // Default to -1 for unassigned ID
+    this.id = 0, // Default to -1 for unassigned ID
   });
 
   // Factory constructor to create a ParkingSpace from JSON
   factory ParkingSpace.fromJson(Map<String, dynamic> json) {
     return ParkingSpace(
-      id: json['id'] ?? -1, // Default to -1 if id is missing
+      id: json['id'] ?? 0, // Default to -1 if id is missing
       address: json['address'] ??
           '', // Default to empty string if address is missing
       pricePerHour:
