@@ -3,6 +3,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:client_repositories/async_http_repos.dart';
 import 'dart:convert';
 import '../main.dart';
+import 'login_view.dart';
 
 bool isLoggedIn = false; // Track login state
 String? loggedInName; // Logged-in user's name
@@ -60,12 +61,28 @@ class _SettingsViewState extends State<SettingsView> {
                       // Delete the user from the repository
                       await PersonRepository.instance
                           .deletePerson(int.parse(loggedInPersonId));
+                      //   final prefs = await SharedPreferences.getInstance();
                     }
                   }
+
+                  await prefs.clear();
+                  setState(() {
+                    isLoggedIn = false;
+                    loggedInName = null;
+                    loggedInPersonNum = null;
+                  });
+                  Navigator.of(context).pushAndRemoveUntil(
+                    MaterialPageRoute(
+                        builder: (context) => LoginView(
+                              onLoginSuccess: () {},
+                            )),
+                    (route) => false, // Remove all routes in the stack
+                  );
+
+                  // Clear preferences and navigate to HomeView
                 } catch (e) {
                   debugPrint('Error deleting person: $e');
                 }
-                _logout(context);
               },
               child: const Text(
                 'Ta bort',
@@ -76,42 +93,6 @@ class _SettingsViewState extends State<SettingsView> {
         );
       },
     );
-  }
-
-  Future<void> _logout(BuildContext context) async {
-    final confirmLogout = await showDialog<bool>(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: const Text("Bekräfta utloggning"),
-          content: const Text("Vill du logga ut?"),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context, false),
-              child: const Text("Avbryt"),
-            ),
-            ElevatedButton(
-              onPressed: () => Navigator.pop(context, true),
-              child: const Text("Logga ut"),
-            ),
-          ],
-        );
-      },
-    );
-
-    if (confirmLogout == true) {
-      try {
-        final prefs = await SharedPreferences.getInstance();
-        await prefs.clear();
-        setState(() {
-          isLoggedIn = false;
-          loggedInName = null;
-          loggedInPersonNum = null;
-        });
-      } catch (e) {
-        debugPrint('Error during logout: $e');
-      }
-    }
   }
 
   @override

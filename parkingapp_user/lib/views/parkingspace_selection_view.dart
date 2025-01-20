@@ -2,6 +2,7 @@ import 'dart:convert'; // For JSON encoding/decoding
 import 'package:client_repositories/async_http_repos.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:shared/cli_server_stuff.dart';
 import 'package:shared/shared.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -133,10 +134,25 @@ class _ParkingSpaceSelectionScreenState
     });
   }
 
+  // Future<int> _getNextParkingId() async {
+  //   final parkingRepository = ParkingRepository.instance;
+  //   final parkingList = await parkingRepository.getAllParkings();
+  //   return parkingList.length + 1;
+  // }
+
+  // Future<int> _getNextParkingId() async {
+  //   final parkingRepository = ParkingRepository.instance;
+  //   final parkingList = await parkingRepository.getAllParkings();
+  //   return parkingList.length < 2147483647
+  //       ? parkingList.length + 1
+  //       : throw FormatException('Parking ID exceeds maximum integer size');
+  // }
+
   Future<int> _getNextParkingId() async {
-    final parkingRepository = ParkingRepository.instance;
-    final parkingList = await parkingRepository.getAllParkings();
-    return parkingList.length + 1;
+    final parkingList = await ParkingRepository.instance.getAllParkings();
+    final parkingsMap = {for (var parking in parkingList) parking.id: parking};
+    final lastParkingId = parkingsMap.keys.last;
+    return lastParkingId + 1;
   }
 
   Future<void> _startParking() async {
@@ -172,10 +188,12 @@ class _ParkingSpaceSelectionScreenState
         ParkingSpace.fromJson(json.decode(selectedParkingSpaceJson!));
 
     // Get the next parking ID
-    final nextParkingId = await _getNextParkingId();
+    // final nextParkingId = await _getNextParkingId();
 
+    final nextParkingId = await _getNextParkingId();
     final parkingInstance = Parking(
-      id: nextParkingId, // Use the next parking ID
+      id: nextParkingId, //
+      // nextParkingId, // Use the next parking ID
       vehicle: Vehicle(
         id: selectedVehicle.id, // Default to -1 if id is missing
         regNumber: selectedVehicle.regNumber, // Default to empty string
@@ -196,12 +214,13 @@ class _ParkingSpaceSelectionScreenState
       startTime: DateTime.now(),
       endTime: DateTime.now().add(const Duration(hours: 2)),
     );
-
+    _showSavedInfo();
     // Save the parking instance to SharedPreferences
+    await ParkingRepository.instance.createParking(parkingInstance);
+
     await prefs.setString('parking', json.encode(parkingInstance.toJson()));
 
     // Add the parking instance to the ParkingRepository
-    await ParkingRepository.instance.createParking(parkingInstance);
 
     // Save the selected parking space to preferences when parking starts
     final parkingSpaceJson = json.encode(_selectedParkingSpace!.toJson());
