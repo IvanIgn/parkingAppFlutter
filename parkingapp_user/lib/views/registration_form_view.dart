@@ -146,7 +146,7 @@ class _RegistrationViewState extends State<RegistrationView> {
                           errorText: personNumError,
                           border: const OutlineInputBorder(),
                         ),
-                        obscureText: true,
+                        obscureText: false,
                       ),
                       const SizedBox(height: 16),
                       TextField(
@@ -156,7 +156,7 @@ class _RegistrationViewState extends State<RegistrationView> {
                           errorText: personNumError,
                           border: const OutlineInputBorder(),
                         ),
-                        obscureText: true,
+                        obscureText: false,
                       ),
                       const SizedBox(height: 24),
                       ElevatedButton(
