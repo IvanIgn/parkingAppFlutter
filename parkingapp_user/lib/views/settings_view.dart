@@ -66,10 +66,15 @@ class _SettingsViewState extends State<SettingsView> {
                   }
 
                   await prefs.clear();
+                  // await prefs.remove('loggedInPerson');
+                  // await prefs.remove('loggedInName');
+                  // await prefs.remove('loggedInPersonNum');
+                  // await prefs.setBool('isLoggedIn', false);
                   setState(() {
                     isLoggedIn = false;
                     loggedInName = null;
                     loggedInPersonNum = null;
+                    prefs.setBool('isLoggedIn', false);
                   });
                   Navigator.of(context).pushAndRemoveUntil(
                     MaterialPageRoute(

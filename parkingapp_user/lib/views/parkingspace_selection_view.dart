@@ -189,13 +189,14 @@ class _ParkingSpaceSelectionScreenState
 
     // Get the next parking ID
     // final nextParkingId = await _getNextParkingId();
-
+    debugPrint("All info before saving");
+    _showSavedInfo();
     final nextParkingId = await _getNextParkingId();
     final parkingInstance = Parking(
       id: nextParkingId, //
       // nextParkingId, // Use the next parking ID
       vehicle: Vehicle(
-        id: selectedVehicle.id, // Default to -1 if id is missing
+        //id: selectedVehicle.id, // Default to -1 if id is missing
         regNumber: selectedVehicle.regNumber, // Default to empty string
         vehicleType: selectedVehicle.vehicleType, // Default to empty string
         owner: Person(
@@ -214,6 +215,7 @@ class _ParkingSpaceSelectionScreenState
       startTime: DateTime.now(),
       endTime: DateTime.now().add(const Duration(hours: 2)),
     );
+    debugPrint("All info after saving");
     _showSavedInfo();
     // Save the parking instance to SharedPreferences
     await ParkingRepository.instance.createParking(parkingInstance);
