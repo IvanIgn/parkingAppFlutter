@@ -148,12 +148,12 @@ class _ParkingSpaceSelectionScreenState
   //       : throw FormatException('Parking ID exceeds maximum integer size');
   // }
 
-  Future<int> _getNextParkingId() async {
-    final parkingList = await ParkingRepository.instance.getAllParkings();
-    final parkingsMap = {for (var parking in parkingList) parking.id: parking};
-    final lastParkingId = parkingsMap.keys.last;
-    return lastParkingId + 1;
-  }
+  // Future<int> _getNextParkingId() async {
+  //   final parkingList = await ParkingRepository.instance.getAllParkings();
+  //   final parkingsMap = {for (var parking in parkingList) parking.id: parking};
+  //   final lastParkingId = parkingsMap.keys.last;
+  //   return lastParkingId + 1;
+  // }
 
   Future<void> _startParking() async {
     final prefs = await SharedPreferences.getInstance();
@@ -162,12 +162,35 @@ class _ParkingSpaceSelectionScreenState
     final loggedInPersonID = prefs.getInt('loggedInPersonID');
     final loggedInPersonName = prefs.getString('loggedInName');
     final loggedInPersonNum = prefs.getString('loggedInPersonNum');
+    final parkingRepository = ParkingRepository.instance;
 
     // Vehicle Info
     final selectedVehicleJson = prefs.getString('selectedVehicle');
 
     // Parking Space Info
     final selectedParkingSpaceJson = prefs.getString('selectedParkingSpace');
+
+    if (loggedInPersonJson == null) {
+      throw Exception("Missing logged-in person data in SharedPreferences.");
+    }
+
+    // Create logged-in person object
+    final loggedInPersonMap =
+        json.decode(loggedInPersonJson) as Map<String, dynamic>;
+    final loggedInPerson = Person(
+      id: loggedInPersonMap['id'],
+      name: loggedInPersonMap['name'],
+      personNumber: loggedInPersonMap['personNumber'],
+    );
+
+    // Helper method to load selected parking space and vehicle
+    final parkingData = await _loadParkingData(prefs);
+    final selectedParkingSpace = parkingData['parkingSpace'] as ParkingSpace;
+    final selectedVehicle = parkingData['vehicle'] as Vehicle;
+
+    // Debug logs
+    debugPrint('Selected Parking Space: $selectedParkingSpace');
+    debugPrint('Selected Vehicle: $selectedVehicle');
 
     if (selectedVehicleJson == null || loggedInPersonJson == null) {
       // Show a message if no vehicle or user is selected
@@ -182,51 +205,74 @@ class _ParkingSpaceSelectionScreenState
 
     if (_selectedParkingSpace == null) return;
 
-    final selectedVehicle = Vehicle.fromJson(json.decode(selectedVehicleJson));
-    // final loggedInPerson = Person.fromJson(json.decode(loggedInPersonJson));
-    final selectedParkingSpace =
-        ParkingSpace.fromJson(json.decode(selectedParkingSpaceJson!));
-
-    // Get the next parking ID
-    // final nextParkingId = await _getNextParkingId();
-    debugPrint("All info before saving");
-    _showSavedInfo();
-    final nextParkingId = await _getNextParkingId();
     final parkingInstance = Parking(
-      id: nextParkingId, //
-      // nextParkingId, // Use the next parking ID
-      vehicle: Vehicle(
-        id: selectedVehicle.id, // Default to -1 if id is missing
-        regNumber: selectedVehicle.regNumber, // Default to empty string
-        vehicleType: selectedVehicle.vehicleType, // Default to empty string
-        owner: Person(
-          id: loggedInPersonID!,
-          name: loggedInPersonName ??
-              '', // Default to empty string if name is missing
-          personNumber: loggedInPersonNum ?? '', // Default if missing
-        ),
-      ),
-      parkingSpace: ParkingSpace(
-        id: selectedParkingSpace.id,
-        address: selectedParkingSpace.address,
-        pricePerHour: selectedParkingSpace.pricePerHour,
-      ),
-      //selectedParkingSpace,
+      id: 0,
+      vehicle: selectedVehicle.copyWith(owner: loggedInPerson),
+      parkingSpace: selectedParkingSpace,
       startTime: DateTime.now(),
       endTime: DateTime.now().add(const Duration(hours: 2)),
     );
 
-    // Save the parking instance to SharedPreferences
-    await ParkingRepository.instance.createParking(parkingInstance);
+    final createdParking =
+        await parkingRepository.createParking(parkingInstance);
 
-    await prefs.setString('parking', json.encode(parkingInstance.toJson()));
+    // await prefs.setString('parking', json.encode(parkingInstance.toJson()));
+
+    final allParkings = await parkingRepository.getAllParkings();
+    final exactParking = allParkings.firstWhere(
+      (parking) => parking.id == createdParking.id,
+      orElse: () => throw Exception("Parking not found"),
+    );
+
+    debugPrint("All info before saving");
+    _showSavedInfo();
+
+    await prefs.setString('parking', json.encode(exactParking.toJson()));
+    await prefs.setString(
+        'activeParkingSpace', json.encode(selectedParkingSpace.toJson()));
+    await prefs.setBool('isParkingActive', true);
+
+    // final selectedVehicle = Vehicle.fromJson(json.decode(selectedVehicleJson));
+    // final loggedInPerson = Person.fromJson(json.decode(loggedInPersonJson));
+    //  final selectedParkingSpace =
+    //     ParkingSpace.fromJson(json.decode(selectedParkingSpaceJson!));
+
+    // Get the next parking ID
+    // final nextParkingId = await _getNextParkingId();
+
+    // //  final nextParkingId = await _getNextParkingId();
+    // //  final parkingInstance = Parking(
+    // //    id: nextParkingId, //
+    //     // nextParkingId, // Use the next parking ID
+    //     vehicle: Vehicle(
+    //       id: selectedVehicle.id, // Default to -1 if id is missing
+    //       regNumber: selectedVehicle.regNumber, // Default to empty string
+    //       vehicleType: selectedVehicle.vehicleType, // Default to empty string
+    //       owner: Person(
+    //         id: loggedInPersonID!,
+    //         name: loggedInPersonName ??
+    //             '', // Default to empty string if name is missing
+    //         personNumber: loggedInPersonNum ?? '', // Default if missing
+    //       ),
+    //     ),
+    //     parkingSpace: ParkingSpace(
+    //       id: selectedParkingSpace.id,
+    //       address: selectedParkingSpace.address,
+    //       pricePerHour: selectedParkingSpace.pricePerHour,
+    //     ),
+    //     //selectedParkingSpace,
+    //     startTime: DateTime.now(),
+    //     endTime: DateTime.now().add(const Duration(hours: 2)),
+    //   );
+
+    // Save the parking instance to SharedPreferences
 
     // Add the parking instance to the ParkingRepository
 
     // Save the selected parking space to preferences when parking starts
-    final parkingSpaceJson = json.encode(_selectedParkingSpace!.toJson());
-    await prefs.setString('activeParkingSpace', parkingSpaceJson);
-    await prefs.setBool('isParkingActive', true);
+    // final parkingSpaceJson = json.encode(_selectedParkingSpace!.toJson());
+    // await prefs.setString('activeParkingSpace', parkingSpaceJson);
+    // await prefs.setBool('isParkingActive', true);
 
     // Update the UI to reflect that parking has started
     setState(() {
@@ -237,6 +283,29 @@ class _ParkingSpaceSelectionScreenState
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text("Parkering startad framgångsrikt")),
     );
+  }
+
+  Future<Map<String, dynamic>> _loadParkingData(SharedPreferences prefs) async {
+    final selectedParkingSpaceJson = prefs.getString('selectedParkingSpace');
+    final selectedVehicleJson = prefs.getString('selectedVehicle');
+
+    if (selectedParkingSpaceJson == null || selectedVehicleJson == null) {
+      throw Exception("Missing parking or vehicle data in SharedPreferences.");
+    }
+
+    try {
+      final selectedParkingSpace =
+          ParkingSpace.fromJson(json.decode(selectedParkingSpaceJson));
+      final selectedVehicle =
+          Vehicle.fromJson(json.decode(selectedVehicleJson));
+
+      return {
+        'parkingSpace': selectedParkingSpace,
+        'vehicle': selectedVehicle,
+      };
+    } catch (e) {
+      throw Exception("Error parsing parking or vehicle data: $e");
+    }
   }
 
   Future<void> _stopParking() async {
